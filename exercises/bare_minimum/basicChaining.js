@@ -9,12 +9,20 @@
  */
 
 var fs = require('fs');
+var request = require('needle');
 var Promise = require('bluebird');
 
 
 
 var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
   // TODO
+  readFile = Promise.promisify(fs.readFile);
+  writeFile = Promise.promisify(fs.writeFile);
+  request = Promise.promisify(request);
+
+  return readFile(readFilePath)
+    .then(file => request(`https://api.github.com/users/${String(file).match(/(.+)\n/)[1]}`))
+    .then(response => writeFile(writeFilePath, JSON.stringify(response.body)));
 };
 
 // Export these functions so we can test them
